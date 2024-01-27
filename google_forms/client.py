@@ -1,14 +1,78 @@
 """Custom client handling, including GoogleFormsStream base class."""
 
 from __future__ import annotations
+from os import PathLike
+import json
+from enum import Enum
 
-from typing import Iterable
+from typing import Any, Iterable
+from singer_sdk._singerlib.schema import Schema
 
 from singer_sdk.streams import Stream
+from singer_sdk.tap_base import Tap
+
+from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+
+
+class GoogleCredentialType(Enum):
+    # TODO: incase we want to support additional authentication methods
+    """Credential type enum."""
+
+    SERVICE_ACCOUNT_FROM_FILE = "service_account_from_file"
 
 
 class GoogleFormsStream(Stream):
+    # TODO: maybe the scopes should be configurable
+    SCOPES = [
+        "https://www.googleapis.com/auth/forms.body.readonly",
+        "https://www.googleapis.com/auth/forms.responses.readonly",
+    ]
+    DISCOVERY_DOC = "https://forms.googleapis.com/$discovery/rest?version=v1"
+
     """Stream class for GoogleForms streams."""
+
+    def __init__(
+        self,
+        tap: Tap,
+        schema: str | PathLike | dict[str, Any] | Schema | None = None,
+        name: str | None = None,
+    ) -> None:
+        super().__init__(tap, schema, name)
+
+        self.service = build(
+            "forms",
+            "v1",
+            credentials=GoogleFormsStream.google_credential_factory(
+                GoogleCredentialType("service_account_from_file"),
+            ),
+            discoveryServiceUrl=self.DISCOVERY_DOC,
+            static_discovery=False,
+        )
+
+    @staticmethod
+    def google_credential_factory(
+        credential_type: GoogleCredentialType = None,
+        **kwargs: Any,
+    ) -> Credentials:
+        """Factory method for creating Google API credentials."""
+        if credential_type == GoogleCredentialType.SERVICE_ACCOUNT_FROM_FILE:
+            # creates a Google API credential type from a service account file
+            credentials = service_account.Credentials.from_service_account_file(
+                filename=kwargs.get("client_secrets_path")
+            ).with_scopes(GoogleFormsStream.SCOPES)
+        else:
+            raise Exception("Credential type not supported")
+
+        return credentials
+
+    @staticmethod
+    def get_form_responses(
+        form_id: str,
+        credential: Credentials,
+    ) -> dict:
+        pass
 
     def get_records(
         self,

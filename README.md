@@ -1,6 +1,6 @@
-# google-forms
+# tap-google-forms
 
-`google-forms` is a Singer tap for GoogleForms.
+`tap-google-forms` is a Singer tap for Google Forms. This tap utilizes the [Google Forms API](https://developers.google.com/forms/api/guides).
 
 Built with the [Meltano Tap SDK](https://sdk.meltano.com) for Singer Taps.
 
@@ -64,9 +64,9 @@ You can easily run `google-forms` by itself or in a pipeline using [Meltano](htt
 ### Executing the Tap Directly
 
 ```bash
-google-forms --version
-google-forms --help
-google-forms --config CONFIG --discover > ./catalog.json
+tap-google-forms --version
+tap-google-forms --help
+tap-google-forms --config CONFIG --discover > ./catalog.json
 ```
 
 ## Developer Resources
@@ -89,10 +89,10 @@ Create tests within the `tests` subfolder and
 poetry run pytest
 ```
 
-You can also test the `google-forms` CLI interface directly using `poetry run`:
+You can also test the `tap-google-forms` CLI interface directly using `poetry run`:
 
 ```bash
-poetry run google-forms --help
+poetry run tap-google-forms --help
 ```
 
 ### Testing with [Meltano](https://www.meltano.com)
@@ -112,7 +112,7 @@ Next, install Meltano (if you haven't already) and any needed plugins:
 # Install meltano
 pipx install meltano
 # Initialize meltano within this directory
-cd google-forms
+cd tap-google-forms
 meltano install
 ```
 
@@ -120,9 +120,9 @@ Now you can test and orchestrate using Meltano:
 
 ```bash
 # Test invocation:
-meltano invoke google-forms --version
+meltano invoke tap-google-forms --version
 # OR run a test `elt` pipeline:
-meltano elt google-forms target-jsonl
+meltano elt tap-google-forms target-jsonl
 ```
 
 ### SDK Dev Guide
